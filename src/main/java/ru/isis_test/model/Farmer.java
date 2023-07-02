@@ -1,14 +1,14 @@
 package ru.isis_test.model;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter@Setter
@@ -17,30 +17,42 @@ import java.util.List;
 @NoArgsConstructor
 public class Farmer {
 
+
     @Id
     @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @NotNull(message = "Required")
+    @NotEmpty(message = "Required")
     private String organizationName;
 
-    private OpfForm opfForm;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private OpfForm opf;
 
+    @Pattern(regexp = "\\d{10}", message = "only 10 digits")
+    @NotNull(message = "Required")
+    @NotEmpty(message = "Required")
     private String inn;
 
+    @Pattern(regexp = "[0-9]+", message = "only numbers")
     private String kpp;
 
-    private String ogm;
+    @Pattern(regexp = "[0-9]+", message = "only numbers")
+    private String ogrn;
 
-    private LocalDateTime regDate;
+    private LocalDate regDate = LocalDate.now();
 
     private boolean archiveStatus;
 
-    @ManyToMany
+    @ManyToOne(fetch = FetchType.LAZY)
+    private District regDistrict;
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "district_farmer",
             joinColumns = {@JoinColumn(name = "farmer_id") },
             inverseJoinColumns = { @JoinColumn(name = "district_id")}
     )
-    private List<District> districts = new ArrayList<>();
+    private Set<District> fieldDistricts = new HashSet<>();
 }
